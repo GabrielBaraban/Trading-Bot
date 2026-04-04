@@ -1,7 +1,6 @@
 """
 config.py — Loads and validates all settings from .env
 """
-pip install python-dotenv
 
 import os
 from dotenv import load_dotenv

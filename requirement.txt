@@ -1,0 +1,6 @@
+web3>=6.15.0
+websockets>=12.0
+eth-abi>=4.2.1
+python-dotenv>=1.0.0
+aiohttp>=3.9.0
+rich>=13.7.0
