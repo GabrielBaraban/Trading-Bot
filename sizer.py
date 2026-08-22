@@ -6,8 +6,8 @@ Falls back to WETH price from DexScreener if a token has no direct USD pair.
 """
 
 from __future__ import annotations
-import asyncio
 import logging
+import time
 from dataclasses import dataclass
 from typing import Optional
 
@@ -30,7 +30,6 @@ async def get_token_price_usd(session: aiohttp.ClientSession, token_address: str
     addr = token_address.lower()
 
     # Check cache
-    import time
     if addr in _price_cache:
         price, ts = _price_cache[addr]
         if time.time() - ts < _CACHE_TTL:
@@ -60,7 +59,6 @@ async def get_token_price_usd(session: aiohttp.ClientSession, token_address: str
         return None
 
     price = float(price_str)
-    import time
     _price_cache[addr] = (price, time.time())
     log.debug("Price %s = $%.6f (liquidity $%.0f)", addr[:10], price,
               float(best.get("liquidity", {}).get("usd", 0) or 0))

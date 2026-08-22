@@ -10,6 +10,7 @@ to send real transactions via Uniswap V3.
 """
 
 from __future__ import annotations
+import asyncio
 import logging
 import os
 import time
@@ -132,9 +133,6 @@ async def execute_paper(
 
 
 # ── Helpers ───────────────────────────────────────────────────
-
-import asyncio
-from functools import lru_cache
 
 _meta_cache: dict[str, tuple[str, int]] = {}
 

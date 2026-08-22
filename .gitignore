@@ -1,0 +1,27 @@
+# ── Secrets / local config (never commit) ─────────────────────
+.env
+keys.txt
+*.key
+*.pem
+
+# ── Databases / runtime state ─────────────────────────────────
+*.db
+*.db-wal
+*.db-shm
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# ── Debug / scratch artifacts ─────────────────────────────────
+response.json
+
+# ── OS / editor cruft ─────────────────────────────────────────
+.DS_Store
+desktop.ini
+Thumbs.db

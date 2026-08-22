@@ -16,7 +16,6 @@ from dataclasses import dataclass
 from typing import Optional
 
 from eth_abi import decode as abi_decode
-from web3 import Web3
 
 log = logging.getLogger(__name__)
 
