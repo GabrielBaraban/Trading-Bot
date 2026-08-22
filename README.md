@@ -1,5 +1,7 @@
 # Base Copy-Trading Bot — Paper Mode
 
+[![tests](https://github.com/GabrielBaraban/Trading-Bot/actions/workflows/tests.yml/badge.svg)](https://github.com/GabrielBaraban/Trading-Bot/actions/workflows/tests.yml)
+
 > **Educational / paper-trading only.** This bot **never broadcasts a real
 > transaction.** It watches wallets, simulates the trades it would copy, and
 > reports simulated P&L. Live execution is a deliberate stub that raises on
