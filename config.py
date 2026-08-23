@@ -15,6 +15,16 @@ def _require(key: str) -> str:
     return val
 
 
+def redacted(url: str) -> str:
+    """Mask the API key in an RPC URL so it is safe to log."""
+    if not url:
+        return url
+    head, sep, key = url.rpartition("/")
+    if sep and len(key) > 4:
+        return f"{head}/{key[:4]}…"
+    return url
+
+
 # ── RPC ──────────────────────────────────────────────────────
 RPC_WSS   = _require("BASE_RPC_WSS")
 RPC_HTTPS = _require("BASE_RPC_HTTPS")

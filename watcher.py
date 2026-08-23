@@ -34,7 +34,7 @@ async def watch_swaps() -> AsyncIterator[SwapInfo]:
 
 
 async def _watch_once() -> AsyncIterator[SwapInfo]:
-    log.info("Connecting to Base WSS: %s", config.RPC_WSS)
+    log.info("Connecting to Base WSS: %s", config.redacted(config.RPC_WSS))
     async with AsyncWeb3(WebSocketProvider(config.RPC_WSS)) as w3:
         subscription_id = await w3.eth.subscribe("newHeads")
         log.info("Subscribed to newHeads (id=%s)", subscription_id)

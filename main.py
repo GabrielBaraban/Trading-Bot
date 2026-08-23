@@ -26,6 +26,7 @@ import aiohttp
 from rich.console import Console
 from rich.logging import RichHandler
 from web3 import AsyncWeb3, WebSocketProvider
+from web3.exceptions import ProviderConnectionError
 
 import config
 import journal
@@ -40,11 +41,30 @@ logging.basicConfig(
     format="%(message)s",
     handlers=[RichHandler(rich_tracebacks=True, markup=True)],
 )
+# web3 logs the full RPC URL (with API key) at INFO — keep it quiet.
+logging.getLogger("web3").setLevel(logging.WARNING)
 log = logging.getLogger("bot")
 console = Console()
 
 # How often the background monitor re-prices open positions (seconds)
 MONITOR_INTERVAL = int(os.getenv("MONITOR_INTERVAL", "60"))
+
+
+def _report_rpc_error(exc: Exception) -> None:
+    """Print a clean, actionable message instead of a raw web3 traceback."""
+    detail = str(exc)
+    if "401" in detail or "authenticated" in detail.lower():
+        log.error(
+            "[bold red]RPC rejected the key (HTTP 401).[/bold red] Check "
+            "BASE_RPC_WSS in your .env — the key looks invalid, disabled, "
+            "or truncated."
+        )
+    else:
+        log.error(
+            "[bold red]Could not connect to the Base RPC.[/bold red] Check "
+            "BASE_RPC_WSS in your .env and your network (target: %s).",
+            config.redacted(config.RPC_WSS),
+        )
 
 
 # ── Main loop ─────────────────────────────────────────────────
@@ -55,20 +75,24 @@ async def main() -> None:
     log.info("Watching wallets: %s", config.WATCHED_WALLETS)
 
     async with aiohttp.ClientSession() as session:
-        async with AsyncWeb3(WebSocketProvider(config.RPC_WSS)) as w3:
-            # Start background monitor
-            monitor_task = asyncio.create_task(
-                _monitor_open_positions(session, w3)
-            )
+        try:
+            async with AsyncWeb3(WebSocketProvider(config.RPC_WSS)) as w3:
+                # Start background monitor
+                monitor_task = asyncio.create_task(
+                    _monitor_open_positions(session, w3)
+                )
 
-            try:
-                async for swap in watch_swaps():
-                    await _handle_swap(swap, session, w3)
-            except asyncio.CancelledError:
-                pass
-            finally:
-                monitor_task.cancel()
-                await asyncio.gather(monitor_task, return_exceptions=True)
+                try:
+                    async for swap in watch_swaps():
+                        await _handle_swap(swap, session, w3)
+                except asyncio.CancelledError:
+                    pass
+                finally:
+                    monitor_task.cancel()
+                    await asyncio.gather(monitor_task, return_exceptions=True)
+        except ProviderConnectionError as exc:
+            _report_rpc_error(exc)
+            return
 
     # Final report on shutdown
     console.rule("[bold cyan]Session Report[/bold cyan]")
